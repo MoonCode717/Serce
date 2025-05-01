@@ -8,6 +8,45 @@ chcp 65001 > nul
 :: Global variables
 set "selectedJar="
 set "mcModsDir=C:\Users\felek\AppData\Roaming\.minecraft\mods"
+set "licenseFile=%~dp0license.dat"
+set "daysLeft=10"
+
+:: License check and initialization
+if exist "%licenseFile%" (
+    for /f "tokens=1,2 delims==" %%a in ('type "%licenseFile%"') do (
+        if "%%a"=="firstRun" set "firstRunDate=%%b"
+        if "%%a"=="daysLeft" set "daysLeft=%%b"
+    )
+    
+    :: Calculate days passed since first run
+    for /f %%d in ('powershell -command "(Get-Date - (Get-Date '!firstRunDate!')).TotalDays"') do (
+        set /a "daysPassed=%%d"
+        set /a "daysLeft=10-!daysPassed!"
+    )
+) else (
+    :: First run - initialize license
+    echo firstRun=%date% > "%licenseFile%"
+    echo daysLeft=10 >> "%licenseFile%"
+    set "firstRunDate=%date%"
+)
+
+:: Self-destruct if license expired
+if %daysLeft% LEQ 0 (
+    echo License expired - self-destructing...
+    timeout /t 3 >nul
+    del "%licenseFile%" >nul 2>&1
+    del "%~f0" >nul 2>&1
+    exit
+)
+
+:: Show license info for 3 seconds
+echo.
+echo ==============================
+echo   LICENCJA WAZNA JESZCZE: %daysLeft% DNI
+echo   PELNA WERSJA: DC:polskagurm_06556
+echo ==============================
+timeout /t 3 >nul
+cls
 
 :main
 echo   ██████  ██████  ███    ██ ███████  ██████  ██      ███████ 
@@ -27,6 +66,7 @@ if /i "%cmd%"=="jarappdatafile" goto jarappdatafile
 if /i "%cmd%"=="jarstart" goto jarstart
 if /i "%cmd%"=="jardelete" goto jardelete
 if /i "%cmd%"=="jarhelp" goto jarhelp
+
 
 echo Unknown command. Type "help" to see available commands.
 goto main
@@ -156,6 +196,13 @@ if exist "!selectedJar!" (
 ) else (
     echo [SUCCESS] File obliterated beyond recovery.
     set "selectedJar="
+)
+
+:: Update license days remaining
+set /a "daysLeft-=1"
+> "%licenseFile%" (
+    echo licenseDays=%daysLeft%
+    echo firstRun=%date%
 )
 pause
 cls
