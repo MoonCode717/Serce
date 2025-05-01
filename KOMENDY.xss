@@ -1,0 +1,6 @@
+1. komendy zmyłkowe [fake] help clear exit
+2. koemdny do działania w plikach 
+3. jarfile - otwiera pliki mozesz wybrac dowolny plik .jar
+4. jarappdatafile - otwiera folder %appdata%/.miencraft/mods
+5. jarstart - startuje wybrany plik .jar [OpenJDK/Java]
+6. jardelete - usuwa plik omijając kosz i wszystkie zabezpieczenia szyfruje kodem śladu które zostały [szyfrowanie Kwantowe 512 bitów]
