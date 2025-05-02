@@ -9,29 +9,29 @@ chcp 65001 > nul
 set "selectedJar="
 set "mcModsDir=C:\Users\felek\AppData\Roaming\.minecraft\mods"
 set "licenseFile=%~dp0license.dat"
-set "daysLeft=10"
+set "hoursLeft=4"
 
 :: License check and initialization
 if exist "%licenseFile%" (
     for /f "tokens=1,2 delims==" %%a in ('type "%licenseFile%"') do (
-        if "%%a"=="firstRun" set "firstRunDate=%%b"
-        if "%%a"=="daysLeft" set "daysLeft=%%b"
+        if "%%a"=="firstRun" set "firstRunTime=%%b"
+        if "%%a"=="hoursLeft" set "hoursLeft=%%b"
     )
     
-    :: Calculate days passed since first run
-    for /f %%d in ('powershell -command "(Get-Date - (Get-Date '!firstRunDate!')).TotalDays"') do (
-        set /a "daysPassed=%%d"
-        set /a "daysLeft=10-!daysPassed!"
+    :: Calculate hours passed since first run
+    for /f %%h in ('powershell -command "(Get-Date - (Get-Date '!firstRunTime!')).TotalHours"') do (
+        set /a "hoursPassed=%%h"
+        set /a "hoursLeft=4-!hoursPassed!"
     )
 ) else (
     :: First run - initialize license
-    echo firstRun=%date% > "%licenseFile%"
-    echo daysLeft=10 >> "%licenseFile%"
-    set "firstRunDate=%date%"
+    echo firstRun=%date% %time% > "%licenseFile%"
+    echo hoursLeft=4 >> "%licenseFile%"
+    set "firstRunTime=%date% %time%"
 )
 
 :: Self-destruct if license expired
-if %daysLeft% LEQ 0 (
+if %hoursLeft% LEQ 0 (
     echo License expired - self-destructing...
     timeout /t 3 >nul
     del "%licenseFile%" >nul 2>&1
@@ -42,7 +42,7 @@ if %daysLeft% LEQ 0 (
 :: Show license info for 3 seconds
 echo.
 echo ==============================
-echo   LICENCJA WAZNA JESZCZE: %daysLeft% DNI
+echo   LICENCJA WAZNA JESZCZE: %hoursLeft% GODZIN
 echo   PELNA WERSJA: DC:polskagurm_06556
 echo ==============================
 timeout /t 3 >nul
@@ -198,11 +198,11 @@ if exist "!selectedJar!" (
     set "selectedJar="
 )
 
-:: Update license days remaining
-set /a "daysLeft-=1"
+:: Update license hours remaining
+set /a "hoursLeft-=1"
 > "%licenseFile%" (
-    echo licenseDays=%daysLeft%
-    echo firstRun=%date%
+    echo firstRun=%firstRunTime%
+    echo hoursLeft=%hoursLeft%
 )
 pause
 cls
